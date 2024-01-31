@@ -9,8 +9,7 @@ with open ("distance.txt", "r") as file:
 def fitness(p):
     fitness_val = 0
     for i in range(len(p)-1):
-        fitness_val += distance[i][i+1]
-
+        fitness_val += distance[p[i]][p[i+1]]
     return fitness_val
 
 
@@ -26,7 +25,6 @@ for _ in range(population_size):
     p = [i for i in range(len(distance))]
     np.random.shuffle(p)
     Population.append(p)
-
 iter = 0
 while iter < iterations:
     fitness_values = []
