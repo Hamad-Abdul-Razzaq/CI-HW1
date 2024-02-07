@@ -1,6 +1,6 @@
-from gettext import find
 import numpy as np
 import random
+from math import log10
 
 distance = []
 with open ("distance.txt", "r") as file:
@@ -15,12 +15,68 @@ def fitness(p):
     return fitness_val
 
 # Selection Procedure
-def selection_procedure(fit_val: list, population: list, procedure: str, size):
+def selection_procedure(fit_val: list, population: list, procedure: str, size, tournament_size):
     if procedure == 'Truncation':
         idx_lst = np.argsort(fit_val)
         return [population[idx_lst[i]] for i in range(size)]
+    elif procedure == 'TS':
+        Tsample_idx = [random.randint(0,len(population)-1) for i in range(tournament_size)]
+        Tsample = [population[Tsample_idx[i]] for i in range(len(Tsample_idx))]
+        fitness_vals = [fit_val[Tsample_idx[i]] for i in range(len(Tsample_idx))]
+        idx_lst = np.argsort(fitness_vals)
+        # print(len(idx_lst))
+        # print(size)
+        return [Tsample[idx_lst[i]] for i in range(size)]
+    #elif procedure == 'Fitness Proportional':
+    elif procedure == 'Rank Selection':
+        idx_lst = np.argsort(fit_val)
+        descending_population = [population[idx_lst[i]] for i in range(len(idx_lst)-1,-1,-1)]
+        #descending_fitness = ascending_fitness.reverse()
+        #descending_population = ascending_population.reverse()
+        rangeDict = {i: ((i*(i-1)/2*3000/len(population)), ((i)*(i+1)/2*3000/len(population))) for i in range(1,len(population) + 1)}
+        #print(rangeDict)
+        selected = []
+        minVal = 0
+        maxVal = len(population)*(len(population)+1)/2*3000/len(population)
+        # print(rangeDict)
+        selectedVals = [random.randint(minVal,maxVal) for i in range(size)]
+        for i in range(len(selectedVals)):
+            for j in rangeDict:
+                if rangeDict[j][0] <= selectedVals[i] < rangeDict[j][1]:
+                    selected.append(descending_population[j - 1])
+        return selected
+    elif procedure == 'Fitness Prop':
+        probs = [1/(log10(log10(i))) for i in fit_val]
+        normprob = [i/sum(probs) for i in probs]
+        # print(normprob)
+        rangeDict = list()
+        prev = None
+        for i in range(len(normprob)):
+            if i == 0:
+                rangeDict.append((0,normprob[i]*3000))
+                prev = normprob[i]*3000
+            else:
+                rangeDict.append((prev, prev + normprob[i]*3000))
+                prev = prev + normprob[i]*3000
 
-
+        #print(rangeDict)
+        selected = []
+        selectedVals = [random.randint(0,3000) for i in range(size)]
+        # print("len", len(rangeDict))
+        for i in range(len(selectedVals)):
+            c = 0
+            inserted = False
+            for j in range(len(rangeDict)):
+                if rangeDict[j][0] <= selectedVals[i] <= rangeDict[j][1]:
+                    selected.append(population[c])
+                    inserted = True
+            if not(inserted):
+                print(selectedVals[i])
+                
+                c += 1
+        # print(rangeDict)
+        # print("len", len(selected))
+        return selected
 # Crossover
 def crossover(parents):
     offsprings = list()
@@ -59,6 +115,7 @@ offspring_size = 10
 num_generations = 50
 mutation_rate = 0.5
 iterations = 20000
+tournament_size = 40
 
 # Initializing Population
 Population = list()
@@ -72,7 +129,7 @@ while iter < iterations:
     fitness_values = []
     for i in Population:
         fitness_values.append(fitness(i))
-    parents = selection_procedure(fitness_values, Population, 'Truncation', offspring_size*2)
+    parents = selection_procedure(fitness_values, Population, 'Fitness Prop', offspring_size*2, tournament_size-5)
         
         
     offsprings = crossover(parents)
@@ -80,7 +137,7 @@ while iter < iterations:
     TotalPopulation = Population + offsprings
     for i in offsprings:
         fitness_values.append(fitness(i))
-    Population = selection_procedure(fitness_values, TotalPopulation, 'Truncation', population_size)
+    Population = selection_procedure(fitness_values, TotalPopulation, 'Fitness Prop', population_size, tournament_size + 9)
     iter += 1
     # if min(fitness_values) < min_so_far:
     #     min_so_far = min(fitness_values)
