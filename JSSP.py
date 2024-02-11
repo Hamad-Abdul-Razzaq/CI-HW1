@@ -1,7 +1,7 @@
 import random
 import numpy as np
 Jobs = dict()
-with open("abz5.txt", "r") as file:
+with open("CI-HW1/abz5.txt", "r") as file:
     lst = [[int(j) for j in i.strip().split()] for i in file]
     J = lst[0][0]
     M = lst[0][1]
@@ -62,8 +62,10 @@ for i in range(population_size):
         iteration += 1
     population.append(MOT)
     maxtimes.append(max(current_time))
+    print(MOT)
 
 fitness_value = maxtimes
+print(fitness_value)
 
 def selection(fitness_value, population, procedure, selectSize, tournament_size):
     if procedure == 'Truncation':
@@ -108,7 +110,7 @@ def crossover(parents):
     print(offsprings[0])
     return offsprings
 
-offsprings = crossover(population)
+# offsprings = crossover(population)
 
 #print(selection(fitness_value, fitness_value, 'Truncation', 20, 5))
 
@@ -124,26 +126,26 @@ offsprings = crossover(population)
 # fig = px.timeline(df, x_start="Start", x_end="Finish", y="Task")
 # fig.update_yaxes(autorange="reversed") # otherwise tasks are listed from the bottom up
 # fig.show()
-jobList = []
-for i in offsprings[0].values():
-    for j in i:
-        if j[0] == 1:
-            jobList.append(dict(Task = f"{j[0]},{j[1]}", Start = j[2], Finish = j[3], Resource = "S"))
+# jobList = []
+# for i in offsprings[0].values():
+#     for j in i:
+#         if j[0] == 1:
+#             jobList.append(dict(Task = f"{j[0]},{j[1]}", Start = j[2], Finish = j[3], Resource = "S"))
 
 
-import pandas as pd
-import plotly.figure_factory as ff
-ganttcharts = []
-for i in range(len(offsprings)):
-    ganttchart = []
-    for j in offsprings[i][4]:
-        ganttchart.append(dict(Task = f"{j[0]},{j[1]}", Start = j[2], Finish = j[3], Resource = "S"))
-    ganttcharts.append(ganttchart)
+# import pandas as pd
+# import plotly.figure_factory as ff
+# ganttcharts = []
+# for i in range(len(offsprings)):
+#     ganttchart = []
+#     for j in offsprings[i][4]:
+#         ganttchart.append(dict(Task = f"{j[0]},{j[1]}", Start = j[2], Finish = j[3], Resource = "S"))
+#     ganttcharts.append(ganttchart)
 
-df = pd.DataFrame(
-    jobList
-)
+# df = pd.DataFrame(
+#     jobList
+# )
 
-fig = ff.create_gantt(df, index_col = 'Resource',  bar_width = 0.4, show_colorbar=True)
-fig.update_layout(xaxis_type='linear', autosize=False, width=800, height=400)
-fig.show()
+# fig = ff.create_gantt(df, index_col = 'Resource',  bar_width = 0.4, show_colorbar=True)
+# fig.update_layout(xaxis_type='linear', autosize=False, width=800, height=400)
+# fig.show()

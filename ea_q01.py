@@ -3,7 +3,7 @@ import random
 from math import log10
 
 distance = []
-with open ("distance.txt", "r") as file:
+with open ("CI-HW1/distance.txt", "r") as file:
     distance = [[float(j) for j in i.strip().split()] for i in file]
 
 
@@ -137,7 +137,7 @@ while iter < iterations:
     TotalPopulation = Population + offsprings
     for i in offsprings:
         fitness_values.append(fitness(i))
-    Population = selection_procedure(fitness_values, TotalPopulation, 'Fitness Prop', population_size, tournament_size + 9)
+    Population = selection_procedure(fitness_values, TotalPopulation, 'Truncation', population_size, tournament_size + 9)
     iter += 1
     # if min(fitness_values) < min_so_far:
     #     min_so_far = min(fitness_values)
