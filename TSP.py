@@ -5,7 +5,7 @@ class TSP(EA):
     def __init__(self, hyp):
         super().__init__(hyp)
         lst = []
-        with open("CI-HW1/qa194.tsp","r") as file:
+        with open(self.datapath,"r") as file:
             lst = [i.strip().split() for i in file]
         for _ in range(7):
             lst.pop(0)
@@ -60,14 +60,15 @@ class TSP(EA):
 
 
 HyperParameters = {
-    'Population Size': 30,
-    'Generations': 5,
+    'Population Size': 50,
+    'Generations': 50000,
     'Iterations': 1,
-    'Mutation Rate': 0.95,
+    'Mutation Rate': 1,
     'OffSpring Size': 10,
-    'Parent Procedure': 'Truncation',
-    'Survival Procedure': 'Truncation',
-    'Tournament Size': 10
+    'Parent Procedure': 'Fitness Proportional',
+    'Survival Procedure': 'Tournament Selection',
+    'Tournament Size': 25,
+    'Data Path': 'qa194.tsp'
 }
 
 TSP1 = TSP(HyperParameters)
