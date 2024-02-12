@@ -114,18 +114,6 @@ class JSSP(EA):
     
         
 
-HyperParameters = {
-    'Population Size': 30,
-    'Generations': 50,
-    'Iterations': 10,
-    'Mutation Rate': 0.95,
-    'OffSpring Size': 10,
-    'Parent Procedure': 'Truncation',
-    'Survival Procedure': 'Truncation',
-    'Tournament Size': 10
-}
-JSSP1 = JSSP(HyperParameters)
-JSSP1.Simulate()
 
 
 

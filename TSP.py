@@ -59,17 +59,3 @@ class TSP(EA):
     
 
 
-HyperParameters = {
-    'Population Size': 50,
-    'Generations': 50000,
-    'Iterations': 1,
-    'Mutation Rate': 1,
-    'OffSpring Size': 10,
-    'Parent Procedure': 'Fitness Proportional',
-    'Survival Procedure': 'Tournament Selection',
-    'Tournament Size': 25,
-    'Data Path': 'qa194.tsp'
-}
-
-TSP1 = TSP(HyperParameters)
-TSP1.Simulate()

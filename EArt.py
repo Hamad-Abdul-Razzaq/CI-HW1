@@ -154,19 +154,3 @@ class EArt(EA):
         if self.current_generation % 500 == 0:
             pygame.image.save(out, f"ml_{self.current_iteration}_{self.current_generation}.jpg")
 
-HyperParameters = {
-    'Population Size': 2,
-    'Generations': 10000,
-    'Iterations': 1,
-    'Mutation Rate': 1,
-    'OffSpring Size': 1,
-    'Parent Procedure': 'Truncation',
-    'Survival Procedure': 'Truncation',
-    'Tournament Size': 10,
-    'Data Path': 'mona_lisa_v2.png',
-    'Polygon Size': 50,
-    'Points': 6
-}
-
-EArt1 = EArt(HyperParameters)
-EArt1.Simulate()
