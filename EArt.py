@@ -68,75 +68,77 @@ class EArt(EA):
             indices = [j for j in range(self.PolygonSize)]
             np.random.shuffle(indices)
             c = 0
-            for z in range(self.PolygonSize):
+            for z in range(self.PolygonSize-2):
                 offspring.append(deepcopy(parent1[c]))
                 c += 1
-            for z in range(0):
+            for z in range(2):
                 offspring.append(deepcopy(parent2[c]))
                 c += 1
             self.OffSprings.append(offspring)
     
     def Mutation(self):
-        for o in self.OffSprings:
-            rnd1 = random.randint(1,300)
-            rnd2 = random.randint(1,100)
-            polygon_idx = random.randint(0,self.PolygonSize-1)
-            if (rnd1 <= 100):
-                if o[polygon_idx]['c'].a < 0.01 or rnd1 <= 25:
-                    if rnd2 <= 50:
-                        color = o[polygon_idx]['c']
-                        o[polygon_idx]['c'] = pygame.Color(color.r, color.g, color.b, (color.a + random.randint(1,3))%255)
+        p = random.uniform(0,1)
+        if p <= self.mutation_rate:
+            for o in self.OffSprings:
+                rnd1 = random.randint(1,300)
+                rnd2 = random.randint(1,100)
+                polygon_idx = random.randint(0,self.PolygonSize-1)
+                if (rnd1 <= 100):
+                    if o[polygon_idx]['c'].a < 0.01 or rnd1 <= 25:
+                        if rnd2 <= 50:
+                            color = o[polygon_idx]['c']
+                            o[polygon_idx]['c'] = pygame.Color(color.r, color.g, color.b, (color.a + random.randint(1,3))%255)
+                        else:
+                            color = o[polygon_idx]['c']
+                            o[polygon_idx]['c'] = pygame.Color(color.r, color.g, color.b, random.randint(10,255))
+                    elif rnd1 <= 50:
+                        if rnd2 <= 50:
+                            color = o[polygon_idx]['c']
+                            red_val = (color.r + random.randint(1,3))
+                            if red_val > 255:
+                                red_val = 255
+                            o[polygon_idx]['c'] = pygame.Color(red_val, color.g, color.b, color.a)
+                        else:
+                            color = o[polygon_idx]['c']
+                            o[polygon_idx]['c'] = pygame.Color(random.randint(0,255), color.g, color.b, color.a)
+                    elif rnd1 <= 75:
+                        if rnd2 <= 50:
+                            color = o[polygon_idx]['c']
+                            green_val = (color.g + random.randint(1,3))
+                            if green_val > 255:
+                                green_val = 255
+                            o[polygon_idx]['c'] = pygame.Color(color.r, green_val, color.b, color.a)
+                        else:
+                            color = o[polygon_idx]['c']
+                            o[polygon_idx]['c'] = pygame.Color(color.r, random.randint(0,255), color.b, color.a)
+                    elif rnd1 <= 100:
+                        if rnd2 <= 50:
+                            color = o[polygon_idx]['c']
+                            blue_val = (color.b + random.randint(1,3))
+                            if blue_val > 255:
+                                blue_val = 255
+                            o[polygon_idx]['c'] = pygame.Color(color.r, color.g, blue_val, color.a)
+                        else:
+                            color = o[polygon_idx]['c']
+                            o[polygon_idx]['c'] = pygame.Color(color.r, color.g, random.randint(0,255), color.a)
+                elif rnd1 <= 200:
+                    point_idx = random.randint(0,self.points-1)
+                    if rnd1 <= 150:
+                        if rnd2 <= 50:
+                            vert = o[polygon_idx]['v'][point_idx]
+                            o[polygon_idx]['v'][point_idx] = ((vert[0] + random.randint(1,self.N//10))%self.N, vert[1])
+                        else:
+                            vert = o[polygon_idx]['v'][point_idx]
+                            o[polygon_idx]['v'][point_idx] = (random.randint(0,self.N-1), vert[1])
                     else:
-                        color = o[polygon_idx]['c']
-                        o[polygon_idx]['c'] = pygame.Color(color.r, color.g, color.b, random.randint(10,255))
-                elif rnd1 <= 50:
-                    if rnd2 <= 50:
-                        color = o[polygon_idx]['c']
-                        red_val = (color.r + random.randint(1,3))
-                        if red_val > 255:
-                            red_val = 255
-                        o[polygon_idx]['c'] = pygame.Color(red_val, color.g, color.b, color.a)
-                    else:
-                        color = o[polygon_idx]['c']
-                        o[polygon_idx]['c'] = pygame.Color(random.randint(0,255), color.g, color.b, color.a)
-                elif rnd1 <= 75:
-                    if rnd2 <= 50:
-                        color = o[polygon_idx]['c']
-                        green_val = (color.g + random.randint(1,3))
-                        if green_val > 255:
-                            green_val = 255
-                        o[polygon_idx]['c'] = pygame.Color(color.r, green_val, color.b, color.a)
-                    else:
-                        color = o[polygon_idx]['c']
-                        o[polygon_idx]['c'] = pygame.Color(color.r, random.randint(0,255), color.b, color.a)
-                elif rnd1 <= 100:
-                    if rnd2 <= 50:
-                        color = o[polygon_idx]['c']
-                        blue_val = (color.b + random.randint(1,3))
-                        if blue_val > 255:
-                            blue_val = 255
-                        o[polygon_idx]['c'] = pygame.Color(color.r, color.g, blue_val, color.a)
-                    else:
-                        color = o[polygon_idx]['c']
-                        o[polygon_idx]['c'] = pygame.Color(color.r, color.g, random.randint(0,255), color.a)
-            elif rnd1 <= 200:
-                point_idx = random.randint(0,self.points-1)
-                if rnd1 <= 150:
-                    if rnd2 <= 50:
-                        vert = o[polygon_idx]['v'][point_idx]
-                        o[polygon_idx]['v'][point_idx] = ((vert[0] + random.randint(1,self.N//10))%self.N, vert[1])
-                    else:
-                        vert = o[polygon_idx]['v'][point_idx]
-                        o[polygon_idx]['v'][point_idx] = (random.randint(0,self.N-1), vert[1])
+                        if rnd2 <= 50:
+                            vert = o[polygon_idx]['v'][point_idx]
+                            o[polygon_idx]['v'][point_idx] = (vert[0], (vert[1] + random.randint(1,self.M//10))%self.M)
+                        else:
+                            vert = o[polygon_idx]['v'][point_idx]
+                            o[polygon_idx]['v'][point_idx] = (vert[0], random.randint(0,self.M-1))
                 else:
-                    if rnd2 <= 50:
-                        vert = o[polygon_idx]['v'][point_idx]
-                        o[polygon_idx]['v'][point_idx] = (vert[0], (vert[1] + random.randint(1,self.M//10))%self.M)
-                    else:
-                        vert = o[polygon_idx]['v'][point_idx]
-                        o[polygon_idx]['v'][point_idx] = (vert[0], random.randint(0,self.M-1))
-            else:
-                o[polygon_idx]['v'] = [(random.randint(0,self.N-1), random.randint(0,self.M-1)) for _ in range(self.points)]
+                    o[polygon_idx]['v'] = [(random.randint(0,self.N-1), random.randint(0,self.M-1)) for _ in range(self.points)]
 
     def EvaluateFitness(self, r):
         self.images = list()

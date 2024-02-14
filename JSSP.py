@@ -1,10 +1,11 @@
 from EA import *
+import numpy as np
 
 class JSSP(EA):
     def __init__(self, hyp) -> None:
         super().__init__(hyp)
         self.Jobs = dict()
-        with open("CI-HW1/abz5.txt", "r") as file:
+        with open(self.datapath, "r") as file:
             lst = [[int(j) for j in i.strip().split()] for i in file]
             self.J = lst[0][0]
             self.M = lst[0][1]
@@ -15,102 +16,65 @@ class JSSP(EA):
 
     def initialize(self) -> None:
         self.Population = list()
-        for i in range(self.population_size):
-            current_operation = [0 for _ in range(self.J)] 
-            current_time = [0 for _ in range(self.M)]
-            prev_operation_end_time = [0 for _ in range(self.J)]
-            MOT = {i:list() for i in range(self.M)} 
-            finished_jobs = 0
-            while finished_jobs != self.J:
-                current_job = random.randint(0, self.J-1) # Picking a random job
-                while current_operation[current_job] == self.M: # Check to not schedule already finished jobs
-                    current_job = random.randint(0, self.J-1)
-                operation = current_operation[current_job]
-                machine = self.Jobs[current_job][operation][0]
-                req_time = self.Jobs[current_job][operation][1]
-                if current_time[machine] < prev_operation_end_time[current_job]: # Check for previous operation completion
-                    start_time = prev_operation_end_time[current_job]
-                else:
-                    start_time = current_time[machine]
-                end_time = start_time + req_time
-                prev_operation_end_time[current_job] = end_time
-                current_time[machine] = end_time
-                current_operation[current_job] += 1
-                if current_operation[current_job] == self.M: # Check for marking a job as finished
-                    finished_jobs += 1
-                MOT[machine].append((current_job, operation, start_time, end_time))
-            self.Population.append(MOT)
+        for _ in range(self.population_size):
+            chromosome = list()
+            for i in range(self.J):
+                for j in range(self.M):
+                    chromosome.append(i)
+            np.random.shuffle(chromosome)
+            self.Population.append(chromosome)
+        
     
     def fitness(self, p):
-        return max([i[-1][-1] for i in p.values()])
-    
-    def is_consistent(self, p):
-        operation_consistent = True
-        machine_consistent = True
-        op_time = [[None for _ in range(self.M)] for _ in range(self.J)]
-        for i in p:
-            time = 0
-            for j in p[i]:
-                op_time[j[0]][j[1]] = (j[2], j[3])
-                if j[2] < time and j[1] != 0:
-                    print(j)
-                    machine_consistent = False
-                    time = j[3]
-                    break
-                else:
-                    time = j[3]
-        if not(machine_consistent):
-            return machine_consistent
-        for i in op_time:
-            for j in range(len(i)-1):
-                if i[j][1] > i[j+1][1]:
-                    print(j)
-                    operation_consistent = False
-                    break
-        return operation_consistent 
+        current_operation = [0 for _ in range(self.J)]
+        prev_operation_time = [0 for _ in range(self.J)]
+        machine_time = [0 for _ in range(self.M)]
+        for j in p:
+            o = current_operation[j]
+            m = self.Jobs[j][o][0]
+            duration = self.Jobs[j][o][1]
+            machine_time[m] = max(machine_time[m], prev_operation_time[j]) + duration
+            prev_operation_time[j] = machine_time[m]
+            current_operation[j] += 1
+        return(max(machine_time))
+
         
 
-    def CrossOver(self, parents):
+    def CrossOver(self):
         self.OffSprings = list()
-        for i in range(0, len(parents), 2):
-            parent1 = parents[i]
-            parent2 = parents[i+1]
-            child = dict()
-            machines1 = [random.randint(0,self.M-1) for j in range(self.M//2)]
-            for j in machines1:
-                child[j] = parent1[j].copy()
-            for j in parent2:
-                if not(j in child):
-                    child[j] = parent2[j].copy()
-            prev_operation_time = [0 for _ in range(self.M)]
-            machine_times = [0 for _ in range(self.M)]
-            for x in range(self.M):
-                for y in range(self.J):
-                    machine_no = self.Jobs[y][x][0]
-                    duration = self.Jobs[y][x][1]
-                    for k in range(len(child[machine_no])):
-                        opp = child[machine_no][k]
-                        if opp[0] == y and opp[1] == x:
-                            print("Before", opp)
-                            start_time = max(machine_times[machine_no], prev_operation_time[y])
-                            end_time = start_time + duration
-                            child[machine_no][k] = (opp[0], opp[1], start_time, end_time)
-                            prev_operation_time[y] = end_time
-                            machine_times[machine_no]= end_time
-                            print(machine_times)
-                            print(prev_operation_time)
-                            print("After", child[machine_no][k])
-                            break
-            print(child)
-            print(self.is_consistent(child))
-            int("shdsd")
-            self.OffSprings.append(child)
-        for i in self.OffSprings:
-            print(self.is_consistent(i))
-        print(self.OffSprings[0])
+        for i in range(0,len(self.Parents)-1, 2):
+            parent1 = self.Parents[i].copy()
+            parent2 = self.Parents[i + 1].copy()
+            offspring = [-1 for _ in range(len(parent1))]
+            idx = random.randint(0,len(parent1)//2)
+            offspring[idx: idx + len(parent1)//2] = parent1[idx:idx + len(parent1)//2]
+            count_op = [0 for _ in range(self.J)]
+            for x in offspring:
+                if x != -1:
+                    count_op[x] += 1
+            c = 0
+            for j in range( len(parent2)):
+                if c == idx:
+                    c = idx + len(parent2)//2
+                if count_op[parent2[j]] < self.M:
+                    offspring[c] = parent2[j]
+                    c += 1
+                    count_op[parent2[j]] += 1
+            self.OffSprings.append(offspring)
+            
     
     def Mutation(self):
-        pass
+        p = random.uniform(0,1)
+        if p <= self.mutation_rate:
+            for i in range(self.offspring_size):
+                rnd1 = random.randint(0,len(self.OffSprings[i]) - 1)
+                rnd2 = random.randint(0,len(self.OffSprings[i]) - 1)
+                while rnd2 == rnd1:
+                    rnd2 = random.randint(0,len(self.OffSprings[i]) - 1)
+                if rnd1 < rnd2:
+                    self.OffSprings[i] = self.OffSprings[i][:rnd1+1] + [self.OffSprings[i][rnd2]] + self.OffSprings[i][rnd1+1:rnd2] + self.OffSprings[i][rnd2+1:]
+                else:
+                    self.OffSprings[i] = self.OffSprings[i][:rnd2+1] + [self.OffSprings[i][rnd1]] + self.OffSprings[i][rnd2+1:rnd1] + self.OffSprings[i][rnd1+1:]
     
         
 
@@ -181,3 +145,19 @@ class JSSP(EA):
 # # fig = ff.create_gantt(df, index_col = 'Resource',  bar_width = 0.4, show_colorbar=True)
 # # fig.update_layout(xaxis_type='linear', autosize=False, width=800, height=400)
 # # fig.show()
+
+HyperParameters = {
+    'Population Size': 30,
+    'Generations': 5000,
+    'Iterations': 10,
+    'Mutation Rate': 1,
+    'OffSpring Size': 10,
+    'Parent Procedure': 'Random',
+    'Survival Procedure': 'Random',
+    'Tournament Size': 25,
+    'Data Path': "abz7.txt"
+}
+
+
+JSSP1 = JSSP(HyperParameters)
+JSSP1.Simulate()

@@ -44,15 +44,17 @@ class TSP(EA):
                     c += 1
             self.OffSprings.append(offspring)
     def Mutation(self) -> None:
-        for i in range(self.offspring_size):
-            rnd1 = random.randint(0,len(self.OffSprings[i]) - 1)
-            rnd2 = random.randint(0,len(self.OffSprings[i]) - 1)
-            while rnd2 == rnd1:
+        p = random.uniform(0,1)
+        if p <= self.mutation_rate:
+            for i in range(self.offspring_size):
+                rnd1 = random.randint(0,len(self.OffSprings[i]) - 1)
                 rnd2 = random.randint(0,len(self.OffSprings[i]) - 1)
-            if rnd1 < rnd2:
-                self.OffSprings[i] = self.OffSprings[i][:rnd1+1] + [self.OffSprings[i][rnd2]] + self.OffSprings[i][rnd1+1:rnd2] + self.OffSprings[i][rnd2+1:]
-            else:
-                self.OffSprings[i] = self.OffSprings[i][:rnd2+1] + [self.OffSprings[i][rnd1]] + self.OffSprings[i][rnd2+1:rnd1] + self.OffSprings[i][rnd1+1:]
+                while rnd2 == rnd1:
+                    rnd2 = random.randint(0,len(self.OffSprings[i]) - 1)
+                if rnd1 < rnd2:
+                    self.OffSprings[i] = self.OffSprings[i][:rnd1+1] + [self.OffSprings[i][rnd2]] + self.OffSprings[i][rnd1+1:rnd2] + self.OffSprings[i][rnd2+1:]
+                else:
+                    self.OffSprings[i] = self.OffSprings[i][:rnd2+1] + [self.OffSprings[i][rnd1]] + self.OffSprings[i][rnd2+1:rnd1] + self.OffSprings[i][rnd1+1:]
 
         
     
